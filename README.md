@@ -42,5 +42,9 @@
 - [이메일 인증 코드 관리](http://reliable-butternut-fa4.notion.site/1a73b3da01c580d4b4d9c8af349d5b5a?pvs=74)
 - [조회수 기능](https://reliable-butternut-fa4.notion.site/1a73b3da01c580db92eed604ba687ec1)
 
+# 서버 아키텍처
+![이미지](https://img.notionusercontent.com/s3/prod-files-secure%2F195f4aa6-b031-41a2-9efd-1b5c09b803ad%2F69d36858-63f3-41b6-a81d-1413e1bc2952%2Fimage.png/size/w=360?exp=1741414726&sig=TzKFagE4-lt_ReKwuf_9xalZzwFk7kFwnbzmOeqSsKM)
+# 데이터베이스 설계도
+![이미지](https://img.notionusercontent.com/s3/prod-files-secure%2F195f4aa6-b031-41a2-9efd-1b5c09b803ad%2F229e1d7e-c6cc-4efe-b4aa-a3a74028d02b%2Fimage.png/size/w=360?exp=1741414831&sig=jRKDF_DTykyFLFBCni92MtThYmvkrqDJZ3MniOWmLdY)
 
 
