@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/baseLayout}">
+<head><meta charset="UTF-8"></head>
+	
+	<th:block layout:fragment="css">
+		<style type="text/css">
+			.history > div{
+				padding-left: 15px;
+				padding-right: 15px;
+				background-color: white;
+				width: 700px;
+				padding-bottom: 10px;
+				border-radius: 6px;
+			}
+			.history-target{
+				font-size: 24px;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+			.user-board{
+				min-height: 300px;
+			}
+			.user-comment{
+				min-height: 300px;
+			}
+			.history table{
+				width: 100%
+			}
+			.history td:nth-child(1) {
+				width: 80%;
+				cursor: pointer;
+			}
+			.history td:nth-child(1):hover {
+				text-decoration: underline;
+			}
+		</style>
+	</th:block>
+	
+	
+	<th:block layout:fragment="content">
+		<div class="history" align="center">
+			<div align="left">
+				<div class="history-target">사용자 <th:block th:text="'@'+${nickname}"></th:block></div>
+				<div class="user-board">
+					<p>최근 작성글</p>
+					<table>
+						<th:block th:if="${boards.size} != 0">
+							<tr th:each="i : ${boards}" th:onclick="'document.location.href=\'/'+${i.BOARD_NO}+'\''">
+								<td th:text="${i.TITLE}"></td>
+								<td th:text="${i.CREATE_DATE}"></td>
+							</tr>
+						</th:block>
+						<th:block th:if="${boards.size} == 0">
+							<tr>
+								<td>작성한 글이 없습니다.</td>
+							</tr>
+						</th:block>
+					</table>
+				</div>
+				<div class="user-comment">
+					<p>최근 작성댓글</p>
+					<table>
+						<th:block th:if="${comments.size} != 0">
+							<tr th:each="i : ${comments}" th:onclick="'document.location.href=\'/'+${i.BOARD_NO}+'?data-token='+${i.COMMENT_NO}+'\''">
+								<td th:text="${i.COMMENT_DATA}"></td>
+								<td th:text="${i.COMMENT_DATE}"></td>
+							</tr>
+						</th:block>
+						<th:block th:if="${comments.size} == 0">
+							<tr>
+								<td>작성한 댓글이 없습니다.</td>
+							</tr>
+						</th:block>
+					</table>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+</html>

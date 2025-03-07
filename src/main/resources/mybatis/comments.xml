@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board.Board_DAO.comments_DAO">
+
+	<select id="getNextGroupNo" resultType="int">
+		select nvl(max(group_no)+1,0) 
+		from comments
+	</select>
+
+	<select id="getGroupMaxStep" parameterType="int" resultType="int">
+		select nvl(max(step),1) 
+		from comments
+		where 	group_no = #{group_no}
+	</select>
+	
+	<insert id="insertComment" parameterType="comments_DTO">
+		insert into comments values(comments_seq.nextval,#{board_no},#{user_no},#{comment_data},sysdate,#{group_no},#{orderNum},#{step},#{childCnt},#{parent_no},'n')
+	</insert>
+	
+	<select id="getCommentsByBoardNo" resultType="map" parameterType="int">
+		select comment_no,to_char(comment_date,'yyyy.MM.dd HH24:MI') as comment_date,step,nickname,c.user_no,comment_data,del
+		from comments c
+		inner join users u
+		on c.user_no = u.user_no
+		where board_no = #{board_no}
+		order by group_no , orderNum asc,step asc
+	</select>
+	
+	
+	<select id="getCommentByCommentNo" parameterType="int" resultType="comments_DTO">
+		select *
+		from comments
+		where comment_no = #{comment_no}
+	</select>
+	
+	<update id="updateChildCnt" parameterType="int">
+		update comments set childCnt = childCnt+1 where comment_no = #{comment_no}
+	</update>
+	
+	<update id="updateGroupOrderNo" parameterType="comments_DTO">
+		update comments set orderNum=orderNum+1 where group_no= #{group_no} and orderNum > #{orderNum}
+	</update>
+	
+	<select id="getGroupChildCntSum" resultType="int" parameterType="int">
+		select sum(childCnt)
+		from comments
+		where group_no = #{group}
+	</select>
+	
+	<select id="getParentChildCntSum" parameterType="int" resultType="int">
+		select sum(childCnt)
+        from comments
+        start with comment_no = ${parent_no}
+        connect by prior comment_no = parent_no
+	</select>
+	
+	
+	<update id="updateCommnet" parameterType="comments_DTO">
+		update comments
+			set comment_data = #{comment_data}
+		where comment_no = #{comment_no}
+	</update>
+	
+	<delete id="deleteComment" parameterType="int">
+		update comments
+			set del = 'y'
+		where comment_no = #{comment_no}
+	</delete>
+	
+	<select id="getRecentlyComment" parameterType="int" resultType="map">
+		select  s1.*
+		from (select comment_no,board_no,comment_Data,to_char(comment_date,'yyyy.MM.dd HH24:MI') comment_Date
+		    from comments
+		    where user_no=#{user_no}
+		    and del != 'y'
+		    order by comment_date desc) s1
+		where rownum <![CDATA[<=]]> 10
+	</select>
+	
+</mapper>

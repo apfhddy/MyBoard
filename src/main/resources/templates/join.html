@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="icon" href="rs/system/img/m.png"/> 
+<meta charset="UTF-8">
+<title>회원가입</title>
+<style type="text/css">
+	
+	html {
+		height: 100%;
+	}
+	body {
+		background-color:#CFCFCF;
+		display: flex;
+		margin: 0;
+		padding: 0;
+		justify-content: center;
+		margin-top: 30px;
+	}
+	main{
+		background-color: white;
+		width: 400px;
+		padding-bottom: 20px;
+	}
+	.input-form{
+		margin-top: 20px;
+		margin-bottom: 5px;
+	}
+	.input-form input{
+		width: 60%;
+		height: 30px;
+		padding-left: 10px;
+	}
+	.input-button input {
+		width: 63%;
+		height: 35px;
+		border-radius: 50px;
+		background-color: black;
+		color: white
+	}
+	.bottom-form{
+		position: relative;
+	}
+	.bottom-form > div{
+		position: absolute;
+		top: 0;
+		font-size: 13px;
+		margin-top: 4px;
+	}
+	.bottom-form > div:nth-child(1){
+		left: 0;
+		margin-left: 31%;
+	}
+	.bottom-form > div:nth-child(2){
+		right: 0;
+		margin-right: 31%;
+	}
+	.label{
+		text-align: left;
+		margin-left: 18%;
+		font-size: 12px;
+	}
+	.msg{
+		text-align: left;
+		margin-left: 19%;
+		font-size: 13px;
+		color: red;
+	}
+</style>
+</head>
+<body>
+	<main align="center">
+			<h1>MyBoard</h1>
+		<div>
+		</div>
+		<div><h3>회원가입</h3></div>
+		<div class="join-form" align="center">
+			<form th:action="'/join'" method="post">
+				<div class="input-form">
+					<div class="label">*아이디</div>
+					<div><input name="id" placeholder="5~15자로 첫글자는 영어로 작성해 주세요"></div>
+					<div class="msg"></div>
+				</div>
+				<div class="input-form">
+					<div class="label">*비밀번호</div>
+					<div>
+						<input name="pw" autocomplete="off" placeholder="최소 8자 이상으로 작성해 주세요" type="password">
+					</div>
+					<div class="msg"></div>
+				</div>
+				<div class="input-form">
+					<div class="label">*비밀번호 확인</div>
+					<div>
+						<input name="ckpw" autocomplete="off" placeholder="비밀번호를 한번더 입력해 주세요" type="password">
+					</div>
+					<div class="msg"></div>
+				</div>
+				<div class="input-form">
+					<div class="label">*닉네임</div>
+					<div>
+						<input name="nickname" placeholder="3~15자로 작성해 주세요">
+					</div>
+					<div class="msg"></div>
+				</div>
+				<div class="input-form">
+					<div class="label">*이메일</div>
+					<div>
+						<input name="email" style="width: 50%;" placeholder="이메일을 입력해 주세요">
+						<input name="sendCode" type="button" style="width: 9%;padding:0; margin-bottom: 5px;" value="인증">
+					</div>
+					<div>
+						<input name="certified" maxlength="6" autocomplete="off" placeholder="인증번호 6자리를 입력해주세요">
+					</div>
+					<div class="msg"></div>
+				</div>
+				<div class="input-button">
+					<input name="forward" type="submit" value="회원가입">
+				</div>
+			</form>
+		</div>
+		<div class="bottom-form">
+			|
+			<div><a href="/login">로그인 하기</a></div>
+			<div>아이디 찾기</div>
+		</div>
+	</main>
+	<script type="text/javascript">
+	
+		document.addEventListener("DOMContentLoaded", ()=>{
+			const form = document.querySelector('.join-form > form');
+			form.id.addEventListener('change',(e)=>{checkId(e.target.value)});
+			form.pw.addEventListener('change',(e)=>{checkPassword(e.target.value)});
+			form.ckpw.addEventListener('change',(e)=>{checkCheckPassword(form.pw.value,e.target.value)});
+			form.nickname.addEventListener('change',(e)=>{checkNickname(e.target.value)});
+			form.email.addEventListener('change',(e)=>{checkEmail(e.target.value)});
+			form.sendCode.addEventListener('click',()=>{certified()});
+			form.certified.addEventListener('keyup',(e)=>{certifiedCheck(e.target.value)});
+			form.forward.addEventListener('click',checkForm);
+			
+			let isSend = false;	
+			let sendCode;
+			
+			let successId = null;
+			let successPw = null;
+			let successNickname = null;
+			let successEmail = null;
+			let sendEmail = null;
+			let successCode = false;		
+			
+			
+			function checkForm(e){
+				e.preventDefault();
+				const id = form.id.value;
+				const pw = form.pw.value;
+				const nickname = form.nickname.value;
+				const email = form.email.value;
+				
+				if(successId == null){
+					showErrMessage('id','아이디를 입력해 주세요');
+					return;
+				}
+				if(successId != id){
+					showErrMessage('id','아이디를 다시 입력해 주세요');
+					return;
+				}
+				
+				
+				if(successPw == null){
+					showErrMessage('pw','비밀번호를 입력해 주세요');
+					return;
+				}
+				if(successPw != pw){
+					showErrMessage('pw','비밀번호를 다시 입력해 주세요');
+					return;
+				}
+				if(successPw != form.ckpw.value){
+					showErrMessage('ckpw','비밀번호를 다시 입력해 주세요');
+					return;
+				}
+				
+				
+				if(successNickname == null){
+					showErrMessage('nickname','닉네임을 입력해 주세요');
+					return;
+				}
+				if(successNickname != nickname){
+					showErrMessage('pw','닉네임을 다시 입력해 주세요');
+					return;
+				}
+				
+				
+				if(successEmail == null){
+					showErrMessage('email','이메일을 입력해 주세요');
+					return;
+				}
+				if(successEmail != email){
+					showErrMessage('email','이메일을 다시 입력해 주세요');
+					return;
+				}
+				
+				
+				if(!successCode){
+					showErrMessage('email','이메일을 인증진행해 주세요');
+					return;
+				}
+				if(sendEmail != email){
+					showErrMessage('email','이메일이 변경되었습니다. 인증을 다시해 주세요');
+					return;
+				}
+				
+				form.submit();
+			}
+			function certified(){
+				const email = form.email.value;
+				if(successEmail == null){
+					showErrMessage('email','이메일을 입력해 주세요');
+					return;
+				}
+				if(successEmail != email){
+					console.log(successEmail)
+					showErrMessage('email','이메일을 다시 입력해 주세요');
+					return;
+				}
+				fetch('/auth/email/check-code',{
+					method:'post',
+					headers:{
+						'content-type':'application/json',
+						'X-CSRF-Token':'[[${_csrf.token}]]',
+					},
+					body:JSON.stringify({email:email})
+				})
+				.then( res => {
+					if(res.status != 200){
+						res.json().then( json => {
+							alert(json.msg)
+						})
+						return;
+					}
+					isSend = true;
+					sendEmail = email;
+				})
+			}
+			
+			function certifiedCheck(code){
+				if(code.length < 6  || 6 < code.length)return;
+				if(!isSend){
+					showErrMessage('email','먼저 인증버튼을 눌러 인증번호를 받아야합니다.');
+					return;
+				}
+				if(sendCode == code)return;
+				sendCode = code;
+			
+				fetch('/auth/email/check-code',{
+					method:'post',
+					headers:{
+						'accept':'application/json',
+						'content-type':'application/json',
+						'X-CSRF-Token':'[[${_csrf.token}]]',
+					},
+					body:JSON.stringify({code:code})
+				})
+				.then( res => {
+					if(res.status != 200){
+						res.json().then( json => {
+							showErrMessage('email',json.msg);
+						})
+						return;
+					}
+					successCode = true;
+					showErrMessage('email','');
+				}) 
+			}
+			
+			
+			
+			
+			
+			
+			function checkId(id){
+				if(id == ''){
+					showErrMessage('id','아이디를 입력해 주세요');
+					return;
+				}
+				if(!new RegExp("^[A-Za-z][A-za-z0-9]{4,14}$").test(id)){
+					showErrMessage('id','사용하실 수 없는 아이디입니다.');
+					return;
+				}
+				fetch(`/user/check/id?id=${id}`)
+				.then( res =>{
+					if(res.status != 200){
+						res.json().then( json => {
+							showErrMessage('id',json.msg);
+						})
+						return;
+					}
+					showErrMessage('id','');
+					successId = id;
+				})
+			}
+			
+			
+			
+			
+			function checkEmail(email){
+				if(email == ''){
+					showErrMessage('email','이메일을 입력해 주세요');
+					return;
+				}
+				if(!new RegExp("^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$").test(email)){
+					showErrMessage('email','이메일이 올바르지 않습니다.');
+					return;
+				};
+				fetch(`/user/check/email?email=${email}`)
+				.then( res =>{
+					if(res.status != 200){
+						res.json().then( json => {
+							showErrMessage('email',json.msg);
+						})
+						return;
+					}
+					showErrMessage('email','');
+					successEmail = email;
+				})
+			}
+			
+			
+			function checkPassword(pw){
+				if(!new RegExp("^[a-zA-z0-9!@#$%^&*`~]{8,}$").test(pw)){
+					showErrMessage('pw','비밀번호는 최소 8자 이상으로 만드셔야 합니다.');
+					return;
+				}
+				showErrMessage('pw','');
+				if(successPw == null)
+					form.pw.addEventListener('blur',(e)=>{checkCheckPassword(e.target.value,form.ckpw.value)})
+				successPw = pw;
+			}
+			
+			
+			function checkCheckPassword(pw,ckpw){
+				if(pw != ckpw){
+					showErrMessage('ckpw','비밀번호가 일치하지 않습니다.');
+					return;
+				}
+				showErrMessage('ckpw','');
+			}
+			
+			
+			function checkNickname(nickname){
+				if(nickname == ''){
+					showErrMessage('nickname','닉네임을 입력해 주세요');
+					return;
+				}
+				if(!new RegExp("^[가-힣A-Z-a-z0-9]{3,15}$").test(nickname)){
+					if(new RegExp("[ㄱ-ㅎㅏ-ㅣ].*?").test(nickname)){
+						showErrMessage('nickname',"단일 글자로는 사용하실수 없습니다.");
+						return;
+					}
+					if(nickname.length < 3 || nickname.length > 15 ){
+						showErrMessage('nickname',"3 ~ 15길이로 사용할수 있습니다.");
+						return;
+					}
+				}
+				fetch(`/user/check/nickname?nickname=${nickname}`)
+				.then( res =>{
+					if(res.status != 200){
+						res.json().then( json => {
+							showErrMessage('nickname',json.msg);
+						})
+						return;
+					}
+					showErrMessage('nickname','');
+					successNickname = nickname;
+				})
+			}
+			
+			
+			function showErrMessage(target,message){
+				form[target].parentElement.parentElement.querySelector('.msg').innerText = message;
+			}
+		
+		})
+	</script>
+</body>
+</html>

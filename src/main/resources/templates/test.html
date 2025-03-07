@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	.canvasToJapen{
+		width: 500px;
+		border: 1px solid;
+		height: 260px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #27282A;
+		color: white;
+		border-radius: 6px;
+	}
+	.canvas{
+		width: 55%;
+	}
+	.canvas canvas{
+		border: 1px solid gray;
+		margin-bottom: 4px;
+	}
+	.japen{
+		width: 45%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+	}
+	.japen > div > div:nth-child(2){
+		margin-top: 4px;
+	}
+	.japen table{
+		border-spacing: 0;
+	}
+	.japen table > tbody td{
+		width: 50px;
+		height: 45px;
+		text-align: center;
+		font-size: 30px;
+	}
+	
+</style>
+</head>
+<body>
+	<div class="canvasToJapen">
+		<div class="canvas" align="center">
+			<div>
+				<canvas ></canvas>
+			</div>
+			<div>
+				<input type="button" onclick="rollback()" value="1획 지우기">
+				<input type="button" onclick="reset()" value="모두 지우기">
+			</div>
+		</div>
+		<div class="japen">
+			<div>
+				<div>
+					<font>일본 한자</font>
+					<table border="1px">
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</table>
+				</div>
+				<div>
+					<font>히라가나/가타카나</font>
+					<table border="1px">
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	const canvas = document.querySelector(".canvas canvas");
+	
+	canvas.width = 200;
+	canvas.height = 200;
+	
+ 	var ctx = canvas.getContext("2d");
+	let painting = false;
+    ctx.lineWidth= 3;
+    ctx.lineCap= "round";
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = "white";
+    
+	let arr = []
+	let historys = [];
+	
+	
+	function rollback(){
+		if(historys.length == 0)return;
+		arr.pop();
+		const img = new Image();
+		img.src= historys.pop();
+	 	img.onload = function() {
+	 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, 200, 200); // 이미지 크기와 위치 조정
+        };
+        if(arr.length != 0)
+        	canvasToText()
+	}
+	
+	function reset(){
+ 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		arr=[];
+		historys = [];
+	}
+	
+    function stopPainting(){
+    	painting=false;
+    	canvasToText()
+	}
+	function stopa(){
+        painting=false;
+	}
+    
+	function canvasToText(){
+		let InputStr = `=R ${arr.length}`;
+    	arr.forEach((i) => {
+    		InputStr += `=S ${i.length} ${i.join(" ")} `
+    	})
+    	InputStr = InputStr.substr(0,InputStr.length-1);
+    	
+	   	fetch('/imageToString',{
+		  	method:'post',
+		  	headers:{
+		  		'Content-type':'application/x-www-form-urlencoded',
+		  		'X-CSRF-Token':'[[${_csrf.token}]]',
+		  	},
+		  	body:`auto=1&charset=8&InputStr=${encodeURIComponent(InputStr).replaceAll('%20','+')}&ReqNum=${new Date().getTime()}`
+	   	})
+	   	.then((res) => {return res.text()})
+	   	.then((text) => {
+	   		const index = text.indexOf(';');
+	   		text = text.substr(index+1);
+	   		text = text.substr(0,text.length-1);
+	   		const arr = text.split(';')
+	   		
+	   		const targetTables = document.querySelectorAll('.japen table');
+	   		const indexs = [0,0];
+	   		arr.forEach((i) => {
+	   			const target = i.length != 1 ? 0 : 1;
+	   			let str;
+	   			let trIndex = 0;
+   				let index = indexs[target]++;
+   				if(index > 3){
+   					trIndex = 1;
+   					index -= 4;
+   				}
+	   			if(target == 0){
+	   				str = i.substr(0,i.indexOf(','));
+	   			}else{
+	   				str = i;
+	   			}
+   				targetTables[target].children[0].children[trIndex].children[index].innerText = str;
+   			})
+   		})
+	}
+	
+    function startPainting(){
+		historys.push(canvas.toDataURL());
+    	arr.push([]);
+        painting=true;
+    }
+    
+    function onMouseMove(event){
+        
+        var x1 = event.offsetX;
+        var y1 = event.offsetY;
+        if(!painting){
+            ctx.beginPath();
+            ctx.moveTo(x1,y1);
+        }else{
+			arr[arr.length-1].push(x1+" "+y1)
+            ctx.lineTo(x1,y1);
+            ctx.stroke();
+        }
+    }
+    
+    if(canvas){
+        canvas.addEventListener("mousemove",onMouseMove);//마우스가 움직일때 onMouseMove 메서드가 작동해라 
+        canvas.addEventListener("mousedown",startPainting);//마우스를 눌렀을때 startPainting 메서드가 동작해라
+        canvas.addEventListener("mouseup",stopPainting);//마우스를 떼었을때 stopPainting 메서드가 동작해라
+        canvas.addEventListener("mouseleave",stopa);//마우스가 벗어났을때 stopPainting 메서드가 동작해라
+    }
+
+ /*   function toImage(){
+	   fetch('/imageToString',{
+		  	method:'post',
+		  	headers:{
+		  		'Content-type':'application/json',
+		  		'X-CSRF-Token':'[[${_csrf.token}]]',
+		  	},
+		  	body:JSON.stringify({data:canvas.toDataURL().substring(22)})
+	   })
+	    
+   } */
+    
+</script>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+	<head th:fragment="head">
+		<meta charset="UTF-8">
+		<style type="text/css">
+			body {
+				background-color:#CFCFCF;
+				margin: 0;
+				padding: 0;
+			}
+			.header-category table{
+				background-color: white;
+				width: 500px;
+			}
+			.header-category td{
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+			main{
+				margin-top: 10px;
+				filter: drop-shadow(0 0px 6px rgba(56, 84, 110, 0.8));
+			}
+			footer{
+				margin-top: 50px;
+			}
+		</style>
+		<title>
+			Myboard
+		</title>
+		
+		<link rel="icon" href="/rs/system/img/m.png"/> 
+		
+		<th:block layout:fragment="css">
+		</th:block>
+		
+		<th:block layout:fragment="javascript">
+		</th:block>
+	</head>
+	
+  
+	<header class="header" th:fragment="header">
+		<div class="header-title">
+			<h1>
+				MyBoard
+			</h1>
+		</div>
+		<div class="header-category" align="center">
+			<table border="2">
+				<tbody>
+					<tr>
+						<th>
+							<th:block th:if="${session.SPRING_SECURITY_CONTEXT} == null">
+									<a href="/login">로그인</a>
+							</th:block>
+							<th:block th:unless="${session.SPRING_SECURITY_CONTEXT} == null">
+								<form action="/logout" method="post">
+									<a id="logout" href="#">로그아웃</a>
+									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+								</form>
+							</th:block>
+						</th>
+						<th:block th:if="${session.SPRING_SECURITY_CONTEXT} != null and ${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.getTarget()} == 'a'">
+							<th>신고 기록보기</th>
+							<th>사이트 기록</th>
+							<th>어드민 관리</th>
+						</th:block>
+						<th><a href="/">전체 게시글</a></th>
+						<th:block th:if="${session.SPRING_SECURITY_CONTEXT} == null or ${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.getTarget()} == 'u'">
+							<th><a href="/user/data">내정보</a></th>
+							<th><a th:href="'/user/history/'+(${session.SPRING_SECURITY_CONTEXT} != null ? ${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.nickname} : '')">내 활동기록</a></th>
+							<th><a href="/write">글쓰기</a></th>
+						</th:block>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</header>
+  
+	<footer th:fragment="footer" align="center">
+		<!-- Copyright 2025. 정희락 All rights reserved.<br> -->
+		<script>
+			if(document.querySelector('#logout') != null)
+				document.querySelector('#logout').addEventListener('click',(e) => {
+					e.target.parentElement.submit();
+				})
+		</script>
+	</footer>
+
+
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/baseLayout}">
+<head><meta charset="UTF-8"></head>
+	
+	<th:block layout:fragment="css">
+		<style type="text/css">
+			.data > div {
+				background-color: white;
+				border-radius: 6px;
+				width: 600px;
+				margin-bottom: 20px;
+				border-spacing: 0;
+				padding-bottom: 20px;
+				padding-left: 20px;
+				padding-right: 20px;
+				
+			}
+			.data-header{
+				font-size: 24px;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+			tr > td:nth-child(1) {
+				width: 100px;
+				display: block;
+			}
+		</style>
+	</th:block>
+	
+	
+	<th:block layout:fragment="content">
+		인증해라 
+	</th:block>
+	
+	
+</html>

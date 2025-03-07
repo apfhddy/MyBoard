@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/baseLayout}">
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<th:block layout:fragment="javascript">
+		<script src="/rs/system/jquery.js"></script>
+		<script src="/rs/system/summernote/summernote-lite.js"></script>
+		<script src="/rs/system/summernote/lang/summernote-ko-KR.js"></script>
+		<link rel="stylesheet" href="/rs/system/summernote/summernote-lite.css">
+	</th:block>
+	<th:block layout:fragment="css">
+		<style type="text/css">
+			.write-form > form{
+				width: 800px;
+				background-color: white;
+				border-radius: 6px;
+			}
+			.write-form > form > table{
+				width: 100%;
+				border-spacing: 0;
+			}
+			.write-form > form > table > thead th{
+				background-color: black;
+				color: white;
+				border-top-left-radius: 6px;
+				border-top-right-radius: 6px;
+				height: 30px;
+			}
+			.write-form > form > table > tbody td{
+				height: 50px;
+				font-size: 17px;
+			}
+			.note-editable{
+				background-color: white;
+				font-size: 14px;
+			}
+			.input-form > input{
+				width: 60%;
+				height: 30px;
+				padding-left: 10px;
+				font-size: 17px;
+			}
+			.content-test{
+				margin-left:30%;
+				margin-right:30%;
+				padding-top: 10px;
+				padding-bottom: 10px;
+				border: 1px solid black; 
+				height: 40px;
+				border-radius:8px;
+				display:flex;
+				overflow-clip-margin: content-box;
+				overflow: clip;
+				justify-content: center;
+				backgorund-color:gray;
+				align-items: center;"
+			}
+		</style>	
+	</th:block>
+	
+
+	<th:block layout:fragment="content">
+		<div class="write-form" align="center">
+			<form th:action="${board_no} == null ? '/write' : '/modify/'+${board_no}" method="post">
+				<table>
+					<thead>
+						<tr>
+							<th colspan="3"><th:block th:if="${board_no} == null">글쓰기</th:block><th:block th:if="${board_no} != null">글수정</th:block></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th>제목</th>
+							<td class="input-form"><input name="title" th:value="${title} == null ? '' : ${title}"></td>
+						</tr>
+					</tbody>
+				</table>
+				<div align="left">
+					<textarea id="summernote" name="content"><th:block  th:text=" ${content} ==  null ?  ${oneBoard} : ${content}"/></textarea>
+				</div>
+				<div align="right">
+				</div>
+				<div align="right">
+					<th:block th:if="${board_no} == null">
+						<input type="submit" value="작성">
+					</th:block>
+					<th:block th:if="${board_no} != null">
+						<input type="button" value="취소" th:onclick="'document.location.href=\'/'+${board_no}+'\''">
+						<input type="submit" value="수정">
+					</th:block>
+				</div>
+			</form>
+		</div>
+		<script>
+			
+			
+			document.addEventListener("DOMContentLoaded", function(){
+				
+				document.querySelector('.write-form input[type=submit]').addEventListener('click',(e) => {
+					e.preventDefault();
+					const form = e.target.form
+					const title = form.title.value;
+					if(title.trim().length == 0){
+						alert('제목을 작성해 주세요')
+						return;
+					}
+					const virDom = textToHTML(`<div>${form.content.value}</div`)
+					if(virDom.innerText.trim().length == 0){
+						alert('내용을 작성해 주세요')
+						return;
+					}
+					form.submit();
+				})
+				
+				const borderBtn = function() {
+		            var ui = $.summernote.ui;
+		            var button = ui.button({
+		                contents: '<i class="fa fa-pencil"/> 문제',
+		                click: function() {
+		                	const file = textToHTML('<input type="file" accept=".json"></input>');
+		                	file.click();
+		                	
+		                	file.addEventListener('change',()=>{
+		                		
+		                		sendFile(file.files[0])
+		                		.then((src) => {
+			                		const selection = window.getSelection();
+				                    const newRange = selection.getRangeAt(0);
+				                    
+				                    let target = newRange.endContainer.nodeType == 3 ?newRange.endContainer.parentElement:newRange.endContainer;
+				                    if(target.nodeName != 'P' && target.className != 'note-editable')target = document.querySelector('.note-editable');
+				                    
+				                    const HTML = 
+			                    	`<p><span class="content-test" contenteditable="false">
+				                    	<span>
+				                    		<span></span>
+				                    		<span>
+				                    			${file.files[0].name}
+				                    		</span>
+				                    	</span>
+				                    </span>
+				                    </p>`
+				                    
+				                    const node = textToHTML(HTML.trim());
+									node.querySelector('.content-test').setAttribute('src',src)		                    
+				                    if(target.nodeName == 'P'){
+				                    	target.parentElement.insertBefore(node,target)
+				                    }
+			                    	else{
+			                    		target.innerText = '';
+			                    		target.appendChild(node);
+			                    		target.appendChild(textToHTML('<p><br/></p>'));
+			                    	} 
+									$('#summernote').val($('#summernote').summernote('code'));
+		                		});
+		                	})
+		            	}
+		            });
+		            return button.render();
+		        }
+				
+				
+				
+				var fontList = ['맑은 고딕','NotoSansKR'];
+				$('#summernote').summernote({
+					lang: 'ko-KR',
+					height:450,
+					tapsize:2,
+					focus:true,
+					dialogsInBody: true,
+					disableResizeEditor: true,
+					
+					toolbar: [
+					    ['font', ['bold', 'italic', 'underline', 'clear']],
+					    ['para', ['ul', 'ol', 'paragraph']],
+					    ['insert', ['link', 'picture']],
+					    ['custom', ['customButton']]
+					],
+				
+					buttons:{
+						customButton:borderBtn
+					},
+					callbacks:{
+						onImageUpload : (files, editor, welEditable) => {
+							sendFile(files[0])
+							.then((text) => {console.log(text);$('#summernote').summernote("insertImage",text);})
+						} 
+					}
+				});
+				function textToHTML(textHTML){
+					const str = textHTML.replaceAll("\n","").replaceAll("	","");
+					const dom = document.createElement('div');
+					dom.innerHTML = str;
+					return dom.firstChild;
+				}
+				
+				async function sendFile(file){
+					const form = new FormData();
+					form.append('file',file)			
+					form.append('no','[[${board_no} == null ? 0 : ${board_no}]]')			
+					
+					
+					return await fetch('/files/upload',{
+						method:'post',
+						headers:
+						{
+							'X-CSRF-Token':'[[${_csrf.token}]]',
+						},
+						body:form
+					})
+					.then((data) => {return data.text();})
+					.then((text) => {
+						return text;
+					})
+				} 
+			});
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>
+	</th:block>
+
+</html>

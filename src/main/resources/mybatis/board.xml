@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board.Board_DAO.board_DAO">
+	<insert id="insertBoard" parameterType="board_DTO">
+		insert into board values(#{board_no},#{title},#{user_no},#{content},sysdate)
+	</insert>
+	
+	<select id="getNextNo" resultType="int">
+		select board_seq.nextval from dual
+	</select>
+	
+	<select id="getAllContents" resultType="map" parameterType="Map">
+		select board_no,title,nickname, decode(to_char(sysdate,'yyyyMMdd'),to_char(create_date,'yyyyMMdd'),to_char(create_date,'HH24:mi'),to_char(create_date,'yyyy.MM.dd')) create_date
+		from board b
+		inner join users u
+		on b.user_no = u.user_no
+		<if test="keyword != null and keyword != ''">
+			<choose>
+				<when test="target == 'title'">where title like '%'||#{keyword}||'%'</when>
+				<when test="target == 'content'">where content like '%'||#{keyword}||'%'</when>
+				<when test="target == 'title_content'">where title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%'</when>
+			</choose>
+		</if>
+		order by b.board_no desc
+        OFFSET 0 + (${contentCnt}/${getPageCnt}*${getPageCnt}*${pageIndex}) ROWS 
+		FETCH NEXT ${contentCnt} ROWS ONLY
+	</select>
+
+	<select id="getOneContent" resultType="map">
+		select board_no,b.user_no,title,nickname,content, to_char(create_date,'yyyy.MM.dd HH24:MI') create_date
+		from board b
+		inner join users u
+		on b.user_no = u.user_no
+		where board_no = #{board_no}
+	</select>
+	
+	<select id="getOneBoard" parameterType="int" resultType="board_DTO">
+		select *
+		from board
+		where board_no = #{board_no}
+	</select>
+	
+	<update id="updateBoard" parameterType="board_DTO">
+		update board 
+		set 
+			title = #{title},
+			content = #{content}
+		where board_no = #{board_no}
+	</update>
+	
+	<delete id="deleteBoard" parameterType="int">
+		delete board where board_no = #{board_no}
+	</delete>
+	
+	<select id="getBoardCnt" resultType="int" parameterType="map">
+		select count(*) from board
+		<if test="keyword != null and keyword != ''">
+			<choose>
+				<when test="target == 'title'">where title like '%'||#{keyword}||'%'</when>
+				<when test="target == 'content'">where content like '%'||#{keyword}||'%'</when>
+				<when test="target == 'title_content'">where title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%'</when>
+			</choose>
+		</if>
+	</select>
+	
+	<select id="getRecentlyBoard" parameterType="int" resultType="map">
+		select  s1.*
+		from (select board_no,title,to_char(create_date,'yyyy.MM.dd HH24:MI') create_date
+		    from board 
+		    where user_no=#{user_no}
+		    order by create_date desc) s1
+		where rownum <![CDATA[<=]]> 10
+	</select>
+	
+</mapper>

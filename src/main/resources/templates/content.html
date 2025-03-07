@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/baseLayout}">
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<th:block layout:fragment="css">
+		<style>
+			@keyframes blink {
+			  0% {
+			  	background-color: skyblue;
+			    opacity: 1;
+			  }
+			  50% {
+			    opacity: 0.3;
+			  }
+			  100% {
+			  	background-color: skyblue;
+			    opacity: 1;
+			  }
+			}
+			.blinking {
+  				animation: blink 2s ease-in-out 3; /* 1초 간격으로 무한 반복 */
+			}
+			.content{
+				width:800px;
+				background-color: white;
+				border-radius: 6px;
+ 				padding-left: 12px; 
+				padding-right: 12px;
+				padding-bottom: 8px;
+				margin-bottom: 10px;
+			}
+			.content > div:not(.comment-write, .comments-list){
+				padding-left: 17px;
+			}
+			.content > .comment-write{
+				margin-left: 14px;
+				margin-right: 14px;
+			}
+			.content-title{
+				background-color: #EDEDED;
+				height: 40px;
+				line-height: 37px;
+				font-size: 20px;
+				font-weight: bold;
+			}
+			.content-nickname{
+				height: 27px;
+				line-height: 26px;
+			}
+			.content-nickname-side{
+				float: right;
+				font-size: 12px;
+				
+			}
+			.content-nickname-side > span{
+				padding-right: 6px;
+				padding-left: 6px;
+			}
+			.content-content{
+				padding-top: 40px;
+				padding-bottom: 40px;
+			}
+			
+			
+			
+			.content-test{
+				
+			}
+			.content-test > div{
+				width: 50%;
+				border-radius: 6px;
+				border: 1px solid;
+				position: relative;
+			}
+			.content-test-block{
+				position:absolute;
+				height: 100%;
+				width: 100%;
+				background-color: rgba(128, 128, 128, 0.5);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.content-test-header{
+				background-color: black;
+				color: white;
+				border-top-left-radius: 6px;
+				border-top-right-radius: 6px;
+				height: 40px;
+				line-height: 37px;
+				border-radius: 6px;
+			}
+			.content-test-main{
+				height: 150px;
+				padding-top: 2px;
+				padding-left: 8px;
+				padding-right: 8px;
+			}
+			.content-test-footer{
+				height: 50px;
+			}
+			.content-test-timer{
+				float: right;
+				width: 80px;
+			}
+			.content-test-main-quiz{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100px;
+				font-size: 50px;
+			}
+			
+			
+			
+			hr{
+				margin: 0;
+			}
+			.content-bottom-button{
+				margin-top: 6px;
+				padding-right: 28px;
+			}
+			.comments-count{
+				height: 40px;
+				line-height: 37px;
+				font-weight: bold;
+			}
+			
+			
+			
+			.comments-list{
+				padding-top: 5px;
+				padding-bottom: 5px;
+				margin-left: 14px;
+				margin-right: 14px;
+				contain: content;
+			}
+			
+			
+			.one-comment{
+				border: 1px solid black;
+				margin-top: 8px;
+				margin-bottom: 8px;
+				margin-left: 15px;
+			}
+			
+			.input-form{
+				margin-top: 5px;
+				margin-bottom: 5px;
+			}
+			.input-form > input{
+				width: 90%;
+				height: 25px;
+				padding-left: 14px;
+				font-size: 15px;
+			}
+			
+			.comment-parent{
+				float: left;
+			}
+			.comment-parent > img{
+				width: 12px;
+				cursor: pointer;
+			}
+			.comment > div:nth-child(2){
+				margin-left: 10px;
+			}
+			.comment-header{
+				background-color: #EDEDED;
+				border-bottom: 1px solid black;
+				font-size: 14px;
+				height: 25px;
+				line-height: 25px;
+				padding-left: 14px;
+			}
+			.comment-main{
+				padding-left: 14px;
+				padding-top: 4px;
+				padding-bottom: 4px;
+			}
+			
+			.comment-header-side{
+				float: right;
+			}
+			.comment-header-side > span{
+				padding-right: 6px;
+				padding-left: 6px;
+				cursor: pointer;
+			}
+			
+			
+			.comment-write{
+				margin-top:10px;
+				margin-bottom:20px;
+				border: 1px solid black;
+				border-radius: 6px;
+				height: 150px;
+				position: relative;
+			}
+			.comment-write > form{
+				height: 100%;
+			}
+			.comment-write-header{
+				border-top-left-radius: 6px;
+				border-top-right-radius: 6px;
+				background-color: #EDEDED;
+				height: 20%;
+				border-bottom: 1px solid black;
+				padding-left: 10px;
+				line-height: 27px;
+			}
+			.comment-write-comment {
+				border:0;
+				border-radius:6;
+				resize: none;  
+				width: 100%;   
+				height: 55%;
+		        box-sizing: border-box; 
+		        font-size: 17px;
+		        padding: 10px;
+			}
+			.comment-write-submit{
+				height: 25%;
+				padding-right: 14px;
+			}
+			.comment-write-comment:focus {
+			  font-family: 'Raleway', sans-serif;
+			 	outline: none !important;
+  				box-shadow: none !important;
+			}
+			
+			.canvasToJapen{
+				width: 500px;
+				border: 1px solid;
+				height: 260px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: #27282A;
+				color: white;
+				border-radius: 6px;
+				position: absolute;
+				z-index: 99;
+				margin-left: 200px;
+			}
+			.canvas{
+				width: 55%;
+			}
+			.canvas canvas{
+				border: 1px solid gray;
+				margin-bottom: 4px;
+			}
+			.japen{
+				width: 45%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+			}
+			.japen > div > div:nth-child(2){
+				margin-top: 4px;
+			}
+			.japen table{
+				border-spacing: 0;
+			}
+			.japen table > tbody td{
+				width: 50px;
+				height: 45px;
+				text-align: center;
+				font-size: 30px;
+			}
+			
+		</style>
+	</th:block>
+	
+
+	<th:block layout:fragment="content">
+		<input type="hidden" th:value="${_csrf.token}">
+		<div align="center">
+			<div class="content" align="left">
+				<div class="content-title" th:text="${content.TITLE}"></div>
+				<hr>
+				<div class="content-nickname">
+					<span th:text="${content.NICKNAME}"></span>
+					<div class="content-nickname-side">
+						<span>댓글</span>
+						<span th:text="${comments.size}"></span>
+						|
+						<span>조회수</span>
+						<span th:text="${content.HITS}"></span>
+						|
+						<span>작성일</span>
+						<span th:text="${content.CREATE_DATE}"></span>
+					</div>
+				</div>
+				<hr>
+				<div class="content-content" th:utext="${content.CONTENT}"></div>
+				<hr>
+				<div class="comments-count">댓글 [ <th:block th:text="${comments.size}"/> ]</div>
+				<hr>
+				<div class="comments-list">
+					<div th:each="i : ${comments}" th:data-token="${i.COMMENT_NO}" th:style="'margin-left:'+ ((${i.STEP} * 40) > 360 ? 360 : (${i.STEP} * 40)) +'px;'">
+						<div class="comment-parent" th:if="${i.STEP} > 0">
+							<img alt="" src="/rs/system/img/up.png">
+						</div>
+						<div class="one-comment">
+							<div class="comment-header">
+								<span th:text="${i.USER_NO} == ${content.USER_NO} ? '작성자' : ${i.NICKNAME}"></span>
+								<div class="comment-header-side">
+									<span th:text="${i.COMMENT_DATE}"></span>
+									<span th:if="${session.SPRING_SECURITY_CONTEXT} != null" class="comment-reply-write-button">답글</span>
+									<span th:if="${session.SPRING_SECURITY_CONTEXT} != null and ${i.DEL} != 'y' and ${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.getTarget()} == 'u' and ${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.user_no} == ${i.USER_NO}" class="comment-reply-update-button">수정</span>
+								</div>
+							</div>
+							<div class="comment-main" th:style="'color:'+(${i.DEL} == 'y' ? 'red' : 'a')" th:text="${i.DEL} != 'y' ? ${i.COMMENT_DATA} : '* 삭제된 댓글입니다.'"></div>
+						</div>
+					</div>
+				</div>
+				<th:block th:if="${session.SPRING_SECURITY_CONTEXT} != null">
+					<div class="comment-write" >
+						<form th:action="'/comment/write'" method="post">
+							<input name="board_no" type="hidden" th:value="${content.BOARD_NO}">
+							<div class="comment-write-header">댓글작성</div>
+							<textarea class="comment-write-comment" name="comment_data"></textarea>
+							<div class="comment-write-submit" align="right">
+								<input type="submit" value="작성">
+							</div>
+						</form>
+					</div>
+					<hr>
+				</th:block>
+				<div class="content-bottom-button" th:if="${session.SPRING_SECURITY_CONTEXT} != null" align="right">
+					<th:block th:if="${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.getTarget()} == 'u' and ${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.user_no} == ${content.USER_NO}">
+						<form th:action="'/delete/'+${board_no}" method="post">
+							<input type="button" value="수정" th:onclick="'document.location.href=\'/modify/'+${board_no}+'\''">
+							<input type="submit" value="삭제">
+						</form>
+					</th:block>
+				</div>
+			</div>
+		</div>
+	<script >
+		const contentTest = document.querySelector(".content-test");
+		const commentParents = document.querySelectorAll(".comment-parent");
+		const replyUpdateButtons = document.querySelectorAll(".comment-reply-update-button");
+		const replyWriteButtons = document.querySelectorAll(".comment-reply-write-button");
+		
+		document.addEventListener("DOMContentLoaded", ()=>{
+			document.querySelector('.content-nickname > span').addEventListener('click',() => {
+				document.location.href='/user/history/[[${content.NICKNAME}]]'
+			})
+			
+			function findTarget(dataToken){
+				const target = document.querySelector(`div[data-token="${dataToken}"]`);
+				target.querySelector('.comment-header').classList.add('blinking')
+				target.scrollIntoView({ behavior: "smooth", block: "start" });
+				setTimeout(() => {
+					target.querySelector('.comment-header').classList.remove('blinking')
+				},6000)
+			}
+			
+			const data = [[${data} == null ? 0 : ${data}]]
+			if(data != 0){
+				findTarget(data);
+			}
+			if(commentParents != null){
+				commentParents.forEach(i => {
+					i.addEventListener('click', () =>{
+						const targetMargin = +i.parentElement.style.marginLeft.replace('px','');
+						const commentsChild = document.querySelector('.comments-list').children;
+						const targetIndex =Array.from(commentsChild).indexOf(i.parentElement);
+						
+						for(let i = targetIndex-1; i > -1; i--){
+							if(+commentsChild[i].style.marginLeft.replace('px','') < targetMargin){
+								findTarget(commentsChild[i].getAttribute('data-token'));
+								break;
+							}
+						}
+					})
+				})
+			}		
+		})
+		
+		if(contentTest != null){
+			function first(execute,count,max,firstQuiz){
+				return `<div class="content-test-main-header">
+					<div class="content-test-ing" align="left">
+						<span class="content-test-ing-now">1</span>/
+						<span class="content-test-ing-max">${max}</span>
+						${execute ? 
+						`<div class="content-test-timer" align="left">
+							<span>time :</span>
+							<span>${count}</span>
+						</div>`:''
+						}
+						
+					</div>
+				</div>
+				<div class="content-test-main-quiz">
+					${firstQuiz}
+				</div>`
+			}
+			
+			function shakeList(arr,num){
+				const length = num > arr.length ? arr.length : num;
+				const quiz = []
+				const list = new Array(length);
+				for(let i = 0; i < length; i++){
+					const ran = Math.trunc(Math.random()*arr.length)
+					if(list[ran] !== undefined){
+						i--;
+						continue;
+					}
+					list[ran] = i; 
+				}
+				list.forEach((i,index) => {
+					const strArr = arr[i].split(':');
+					quiz.push(strArr);
+				})
+				return quiz;
+			}
+			
+			const src = contentTest.getAttribute('src');
+			fetch(src)
+			.then((res) => {return res.json()})
+			.then((data) => {
+				let i = 0;	
+				let intervalId;
+				let failList = [];
+				let quiz = shakeList(data.list,data.quiz.num)
+				
+				const parent = contentTest.parentElement;
+					parent.innerHTML=
+					`<div class="content-test" align="center">
+						<div>
+							<div class="content-test-block"><input type="button" value="시작"></div>
+							<div class="content-test-header">${src}</div>
+							<div class="content-test-main">
+								${first(data.timer.execute,data.timer.count,quiz.length,quiz[0][1])}
+							</div>
+							<div class="content-test-footer">
+								<table>
+									<tr>
+										<td><input class="content-test-write" type="button" value="필기"></td>
+										<td align="right" class="input-form">
+											<input class="content-test-value">
+										</td>
+										<td><input class="content-test-submit" disabled type="button" value="정답"></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="canvasToJapen" style="display:none;">
+						<div class="canvas" align="center">
+							<div>
+								<canvas ></canvas>
+							</div>
+							<div>
+								<input type="button" class="rollback" value="1획 지우기">
+								<input type="button" class="reset" value="모두 지우기">
+							</div>
+						</div>
+						<div class="japen">
+							<div>
+								<div>
+									<font>일본 한자</font>
+									<table border="1px">
+										<tr>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</table>
+								</div>
+								<div>
+									<font>히라가나/가타카나</font>
+									<table border="1px">
+										<tr>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+										<tr>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					`
+					
+				function start(){
+					parent.querySelector('.content-test-submit').disabled = false;
+					if(data.timer.execute)
+						intervalId = setInterval(()=>{
+							const target = parent.querySelectorAll('.content-test-timer > span')[1];
+							let time = target.innerText;
+							if(time <= 0){
+								failList.push(quiz[i][0])
+								if(quiz.length-1 >= i){
+									next();
+									time = data.timer.count+1;
+								}
+							}
+							target.innerText = time-1;
+						},1000)
+				}
+				function check(str){
+					if(str !== quiz[i][0])
+						failList.push(quiz[i][0])
+					next();
+					parent.querySelector('.content-test-value').value = '';
+				}
+				function next(){
+					if(quiz.length <= ++i){
+						end();
+						return;
+					}
+					parent.querySelector('.content-test-main-quiz').innerText = quiz[i][1];
+					parent.querySelector('.content-test-ing-now').innerText = i+1;
+				}
+				function reset(){
+					i = 0;
+					failList = []
+					quiz = shakeList(data.list,data.quiz.num);
+					parent.querySelector('.content-test-main').innerHTML=first(data.timer.execute,data.timer.count,quiz.length,quiz[0][1])
+					parent.querySelector('.content-test-block').style.display=''
+				}
+				function end(){
+					if(data.timer.execute)
+						clearInterval(intervalId);
+					parent.querySelector('.content-test-submit').disabled = true;
+					parent.querySelector('.content-test-main').innerHTML=
+					`<div>
+						<table>
+							<tr>
+								<th>총 문제 개수</th>
+								<td>:</td>
+								<td>${quiz.length}개</td>
+							</tr>
+							<tr>
+								<th>맞춘 개수</th>
+								<td>:</td>
+								<td>${quiz.length - failList.length}개</td>
+							</tr>
+							<tr>
+								<th>틀린 개수</th>
+								<td>:</td>
+								<td>${failList.length}개</td>
+							</tr>
+							<tr>
+								<th>틀린 것</th>
+								<td>:</td>
+								<td>${failList}</td>
+							</tr>
+						</table>
+						<input class="content-test-reset" type="button" value="처음으로">
+					</div>`
+				
+					parent.querySelector('.content-test-reset').addEventListener('click',()=>{
+						reset();
+					})
+				}
+				
+				parent.querySelector('.content-test-write').addEventListener('click',(e)=>{
+					const write = parent.querySelector('.canvasToJapen')
+					const isOn = write.style.display == '';
+					write.style.display = isOn ? 'none':'';
+				})
+				parent.querySelector('.content-test-submit').addEventListener('click',(e)=>{
+					const value = parent.querySelector('.content-test-value').value;
+					check(value);
+				})
+				
+				parent.querySelector('.content-test-block > input').addEventListener('click',(e) => {
+					e.target.parentElement.style.display='none'
+					start();
+				})
+				
+				const canvas = document.querySelector(".canvas canvas");
+				
+				canvas.width = 200;
+				canvas.height = 200;
+				
+			 	var ctx = canvas.getContext("2d");
+				let painting = false;
+			    ctx.lineWidth= 3;
+			    ctx.lineCap= "round";
+			    ctx.lineJoin = 'round';
+			    ctx.strokeStyle = "white";
+			    
+				let arr = []
+				let historys = [];
+				
+				
+				function rollback(){
+					if(historys.length == 0)return;
+					arr.pop();
+					const img = new Image();
+					img.src= historys.pop();
+				 	img.onload = function() {
+				 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+			            ctx.drawImage(img, 0, 0, 200, 200); // 이미지 크기와 위치 조정
+			        };
+			        if(arr.length != 0)
+			        	canvasToText()
+				}
+				
+				function resett(){
+			 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+					arr=[];
+					historys = [];
+				}
+				
+			    function stopPainting(){
+			    	painting=false;
+			    	canvasToText()
+				}
+				function stopa(){
+			        painting=false;
+				}
+				function canvasToText(){
+					let InputStr = `=R ${arr.length}`;
+			    	arr.forEach((i) => {
+			    		InputStr += `=S ${i.length} ${i.join(" ")} `
+			    	})
+			    	InputStr = InputStr.substr(0,InputStr.length-1);
+			    	
+				   	fetch('/imageToString',{
+					  	method:'post',
+					  	headers:{
+					  		'Content-type':'application/x-www-form-urlencoded',
+					  		'X-CSRF-Token':'[[${_csrf.token}]]',
+					  	},
+					  	body:`auto=1&charset=8&InputStr=${encodeURIComponent(InputStr).replaceAll('%20','+')}&ReqNum=${new Date().getTime()}`
+				   	})
+				   	.then((res) => {return res.text()})
+				   	.then((text) => {
+				   		const index = text.indexOf(';');
+				   		text = text.substr(index+1);
+				   		text = text.substr(0,text.length-1);
+				   		const arr = text.split(';')
+				   		
+				   		const targetTables = document.querySelectorAll('.japen table');
+				   		const indexs = [0,0];
+				   		arr.forEach((i) => {
+				   			const target = i.length != 1 ? 0 : 1;
+				   			let str;
+				   			let trIndex = 0;
+			   				let index = indexs[target]++;
+			   				if(index > 3){
+			   					trIndex = 1;
+			   					index -= 4;
+			   				}
+				   			if(target == 0){
+				   				str = i.substr(0,i.indexOf(','));
+				   			}else{
+				   				str = i;
+				   			}
+			   				targetTables[target].children[0].children[trIndex].children[index].innerText = str;
+			   			})
+			   		})
+				}
+				
+				
+			    function startPainting(){
+					historys.push(canvas.toDataURL());
+			    	arr.push([]);
+			        painting=true;
+			    }
+			    
+			    function onMouseMove(event){
+			        
+			        var x1 = event.offsetX;
+			        var y1 = event.offsetY;
+			        if(!painting){
+			            ctx.beginPath();
+			            ctx.moveTo(x1,y1);
+			        }else{
+						arr[arr.length-1].push(x1+" "+y1)
+			            ctx.lineTo(x1,y1);
+			            ctx.stroke();
+			        }
+			    }
+			    
+			    if(canvas){
+			        canvas.addEventListener("mousemove",onMouseMove);//마우스가 움직일때 onMouseMove 메서드가 작동해라 
+			        canvas.addEventListener("mousedown",startPainting);//마우스를 눌렀을때 startPainting 메서드가 동작해라
+			        canvas.addEventListener("mouseup",stopPainting);//마우스를 떼었을때 stopPainting 메서드가 동작해라
+			        canvas.addEventListener("mouseleave",stopa);//마우스가 벗어났을때 stopPainting 메서드가 동작해라
+			        parent.querySelector('.rollback').addEventListener('click',() => {
+			        	rollback();
+			        })
+			        parent.querySelector('.reset').addEventListener('click',() => {
+			        	resett();
+			        })
+			        const tds = parent.querySelector('.canvasToJapen').querySelectorAll('td');
+			        tds.forEach( i => {
+			        	i.addEventListener('click',(e) => {
+			        		const value = e.target.innerText;
+			        		if(value === '')return;
+			        		parent.querySelector('.content-test-value').value += value;
+			        	})
+			        })
+			    }
+				
+			})
+		}
+		
+		if(replyWriteButtons != null){
+			replyWriteButtons.forEach((i,index) => {
+				i.addEventListener('click',(e) => {
+					writeFormInContentList();
+					hiddenCommentCancle();
+					const standard = document.querySelector(".comments-list");
+					const target = standard.children[index];
+					standard.insertBefore(getReplyDom(
+											target.getAttribute("data-token"),
+											"",
+											(+target.style.marginLeft.replace('px',''))+40,
+											'insert')
+					,standard.children[index+1])
+				})
+			})
+		}
+		
+		if(replyUpdateButtons != null){
+			replyUpdateButtons.forEach((i,index) => {
+				i.addEventListener('click',(e) => {
+					writeFormInContentList();
+					hiddenCommentCancle();
+					const standard = document.querySelector(".comments-list");
+					const target = standard.children[index];
+					
+					target.style.display='none';
+					standard.insertBefore(getReplyDom(
+											target.getAttribute("data-token"),
+											target.querySelector('.comment-main').innerText,
+											+target.style.marginLeft.replace('px',''),
+											'update')
+					,standard.children[index+1])
+				})
+			})
+		}
+		
+		function writeFormInContentList(){
+			const removeDom = document.querySelector(".comments-list > .comment-write")
+			if(removeDom != null)
+				document.querySelector(".comments-list").removeChild(removeDom);
+		}
+		function hiddenCommentCancle(){
+			const target = document.querySelector(".comments-list > .comment[style*='display: none']");
+			if(target != null)
+				target.style.display = '';	
+		}	
+			
+			
+		function getReplyDom(data,text,margin,type){
+			let url;
+			let submitText;
+			let cancleEvent;
+			let title;
+			switch(type){
+			case 'insert':
+				url = '/comment/write';
+				submitText = '작성';
+				cancleEvent = writeFormInContentList;
+				break;
+			case 'update':
+				url = '/comment/update/'+data
+				submitText = '수정';
+				cancleEvent = ()=>{writeFormInContentList();hiddenCommentCancle()};
+			}
+			margin = margin < 360 ? margin : 360;
+			const HTML = 
+			`<div class="comment-write" style="margin-left:${margin}px;">
+				<form action="${url}" method="post">
+				<input type="hidden" name="_csrf" value="[[${_csrf.token}]]">
+				<input type="hidden" name="board_no" value="[[${content.BOARD_NO}]]">
+				${type === 'insert' ? '<input type="hidden" name="comment_no" value="'+data+'">' : ''}
+				<div class="comment-write-header">답글${submitText}
+				${type === 'update' ? '<div class="comment-delete-button" style="float: right; padding-right: 10px;font-size:14px;cursor:pointer;">삭제</div>' : ''}
+				</div>
+				<textarea class="comment-write-comment" name="comment_data">${text}</textarea>
+				<div class="comment-write-submit" align="right">
+					<input type="button" value="취소">
+					<input type="submit" value="${submitText}">
+				</div>
+				</form>
+			</div>`;
+			const dom =  textToHTML(HTML);
+			
+			dom.querySelector("input[value='취소']").addEventListener('click',()=> {cancleEvent()});
+			if(type == 'update'){
+				dom.querySelector(".comment-delete-button").addEventListener('click', (event)=>{
+				
+				const form = event.target.parentElement.parentElement;
+				form.action = '/comment/delete/'+data
+				form.submit();
+				});
+			}
+					
+			return dom;
+		} 
+		function textToHTML(textHTML){
+			const dom = document.createElement('div');
+			dom.innerHTML = textHTML;
+			return dom.firstChild;
+		}
+		 
+	</script>
+	</th:block>
+</html>

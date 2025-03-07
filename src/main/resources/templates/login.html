@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel="icon" href="rs/system/img/m.png"/> 
+<meta charset="UTF-8">
+<title>로그인</title>
+<style type="text/css">
+	
+	html {
+		height: 100%;
+	}
+	body {
+		background-color:#CFCFCF;
+		height: 100%;
+		display: flex;
+		margin: 0;
+		padding: 0;
+		align-items: center;
+		justify-content: center;
+	}
+	main{
+		background-color: white;
+		width: 400px;
+		height: 600px;
+	}
+	.input-form{
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	.input-form > input{
+		width: 60%;
+		height: 30px;
+		padding-left: 10px;
+	}
+	.input-button{
+	}
+	.input-button > input {
+		width: 63%;
+		height: 35px;
+		border-radius: 50px;
+		background-color: black;
+		color: white
+	}
+	.bottom-form{
+		position: relative;
+	}
+	.bottom-form > div{
+		position: absolute;
+		top: 0;
+		font-size: 13px;
+		margin-top: 4px;
+	}
+	.bottom-form > div:nth-child(1){
+		left: 0;
+		margin-left: 33%;
+	}
+	.bottom-form > div:nth-child(2){
+		right: 0;
+		margin-right: 31%;
+	}
+</style>
+</head>
+<body>
+	<main align="center">
+		<div>
+			<h1>MyBoard</h1>
+		</div>
+		<div><h3>로그인</h3></div>
+		<div>
+			<form action="/login" method="post">
+				<div class="input-form"><input id="username" name="id" placeholder="ID"></div>
+				<div class="input-form"><input id="password" autoComplete="off" name="pw" placeholder="Password" type="password"></div>
+				<div class="input-button"><input type="submit" value="로그인"></div>
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+			</form>
+		</div>
+		<div class="bottom-form">
+			|
+			<div><a href="/join">회원 가입</a></div>
+			<div><a href="#">아이디 찾기</a></div>
+		</div>
+	</main>
+</body>
+</html>

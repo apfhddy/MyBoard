@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board.Board_DAO.role_DAO">
+	<select id="getMaxNo" resultType="int">
+		select nvl(max(role_no),0) from role
+	</select>
+
+	<insert id="insertRoles">
+		insert into role(role_no,target_no,target,role)
+		<foreach collection="array" item="roles" separator="union all">
+			select getNextSeq,#{roles.target_no},#{roles.target},#{roles.role} from dual
+		</foreach>
+	</insert>
+	
+	<select id="getRoles" resultType="String" parameterType="role_DTO">
+		select role 
+		from role 
+		where target_no = #{target_no} and target = #{target}
+	</select>
+</mapper>

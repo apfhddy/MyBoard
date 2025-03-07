@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board.Board_DAO.users_DAO">
+	<select id="nextNo">
+		select users_seq.nextval from dual
+	</select>
+	<insert id="insertUser" parameterType="users_DTO">
+		insert into users values(#{user_no},#{id},#{pw},#{nickname},#{email},sysdate)
+	</insert>
+	<select id="getUserById" resultType="users_DTO" parameterType="String">
+		select * from users where id = #{id}
+	</select>
+	<select id="getUserNoByNickname" parameterType="String" resultType="int">
+		select nvl(max(user_no),-1)
+		from users
+		where nickname = #{nickname}
+	</select>
+	<update id="updateNickname" parameterType="users_DTO">
+		update users 
+		set nickname = #{nickname}
+		where user_no = #{user_no}
+	</update>
+	<update id="updateEmail" parameterType="users_DTO">
+		update users 
+		set email = #{email}
+		where user_no = #{user_no}
+	</update>
+	<update id="updatePassword" parameterType="users_DTO">
+		update users 
+		set pw = #{pw}
+		where user_no = #{user_no}
+	</update>
+	
+	<select id="getUserByEmail" parameterType="String" resultType="users_DTO">
+		select * from users where email = #{email}
+	</select>
+</mapper>

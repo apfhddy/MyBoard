@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/baseLayout}">
+<head><meta charset="UTF-8"></head>
+	
+	<th:block layout:fragment="css">
+		<style type="text/css">
+			.data > div {
+				background-color: white;
+				border-radius: 6px;
+				width: 600px;
+				margin-bottom: 20px;
+				border-spacing: 0;
+				padding-bottom: 20px;
+				padding-left: 20px;
+				padding-right: 20px;
+				
+			}
+			.data-header{
+				font-size: 24px;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+			tr > td:nth-child(1) {
+				width: 100px;
+				display: block;
+			}
+		</style>
+	</th:block>
+	
+	
+	<th:block layout:fragment="content">
+		<div class="data" align="center">
+			<div align="left"><div>
+			</div>
+				<div class="data-header">프로필 정보</div>
+				<form th:action="'/user/nickname'" method="post">
+					<table>
+						<tr>
+							<td>닉네임</td>
+							<td>
+								<div><input name="nickname" th:value="${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.nickname}"></div>
+							</td>
+						</tr>
+					</table>
+					<div align="right"><input type="submit" onclick="checkNick(event)" value="저장"></div>
+				</form>
+				<hr/>
+				<div class="data-header">계정 정보</div>
+				<form th:action="'/user/email'" method="post">
+					<table>
+						<tr>
+							<td>아이디</td>
+							<td th:text="${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.id}"></td>
+						</tr>
+						<tr>
+							<td>이메일</td>
+							<td>
+								<input name="email" th:value="${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.email}">
+							</td>
+						</tr>
+					</table>
+					<div align="right"><input type="submit" onclick="checkEmail(event)" value="저장"></div>
+				</form>
+				<hr/>
+				<div class="data-header">보안</div>
+				<table>
+					<tr>
+						<td>비밀번호</td>
+						<td><input type="button" value="비밀번호 변경" onclick="document.location.href='/user/changePassword'"></td>
+					</tr>
+				</table>
+				<hr/>
+			</div>
+		</div>
+		<script>
+			function checkNick(e){
+				e.preventDefault();
+				
+				const value = e.target.form.nickname.value;
+				
+				const check = earyReturnNickCheck(value);
+				if(check.code != 200){
+					alert(check.msg);
+					return;
+				}
+				
+				e.target.form.submit();
+			}
+			function earyReturnNickCheck(value){
+				if(value == '[[${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.nickname}]]')return {msg:'변경 사항이 없습니다.',code:400};
+				if(!new RegExp("^[가-힣A-Z-a-z0-9]{3,15}$").test(value)){
+					if(new RegExp("[ㄱ-ㅎㅏ-ㅣ].*?").test(value))return {msg:"단일 글자로는 사용하실수 없습니다.",code:400}
+					if(value.length < 3 || value.length > 15 )return{msg:"3 ~ 15길이로 사용할수 있습니다.",code:400};
+				}
+				return {code:200}
+			}
+			
+			function checkEmail(e){
+				e.preventDefault();
+				
+				const value = e.target.form.email.value;
+				
+				const check = earyReturnEmail(value);
+				if(check.code != 200){
+					alert(check.msg);
+					return;
+				}
+
+				e.target.form.submit();
+			}
+			function earyReturnEmail(value){
+				if(value == '[[${session.SPRING_SECURITY_CONTEXT.Authentication.Principal.email}]]')return {msg:'변경 사항이 없습니다.',code:400};
+				if(!new RegExp("^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$").test(value))return {msg:'올바른 이메일이 아닙니다.',code:400};
+				return {code:200}
+			}
+		</script>
+	</th:block>
+	
+	
+</html>
