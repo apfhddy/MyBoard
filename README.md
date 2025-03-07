@@ -38,4 +38,7 @@
 
 # 개발 중 일어난 문제
 - [이메일 리소스관리 최적화](https://reliable-butternut-fa4.notion.site/1a73b3da01c5801994bec51b8839671b)
+- [이메일 전송 남발에 대한 고민](https://reliable-butternut-fa4.notion.site/1a73b3da01c58050aa97ed5cd9b722c2)
+- [이메일 인증 코드 관리](http://reliable-butternut-fa4.notion.site/1a73b3da01c580d4b4d9c8af349d5b5a?pvs=74)
+- [조회수 기능](https://reliable-butternut-fa4.notion.site/1a73b3da01c580db92eed604ba687ec1) 
 
